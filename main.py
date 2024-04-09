@@ -133,6 +133,7 @@ def scan():
                                     "//div[@class='game']/iframe[contains(@src,'jklm.fun')]"))
             break
         except:
+            print("error while switching to frame")
             pass
 
     while True:
@@ -141,33 +142,39 @@ def scan():
                                 "/html/body/div[2]/div[3]/div[1]/div[1]/button").click()
             break
         except:
+            print("error while trying to click start button")
             pass
 
 
     while True:
         try:
-            playerturn = driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[1]/span[2]").text
-            if playerturn == "is up.":
-                print(" ")
-            else:
-                syllable = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div[2]/div").text
-                answerbox = driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
+            playerturn = driver.find_element(By.CLASS_NAME, "selfTurn")
+            opponentturn = playerturn.get_attribute("hidden")
+            answerXPATH = "/html/body/div[2]/div[3]/div[2]/div[2]/form/input"
+            if not opponentturn:
+                print("player is up")
+                print("finding")
+                syllable = driver.find_element(By.CLASS_NAME, "syllable").text
+                answerbox = driver.find_element(By.XPATH, answerXPATH)
                 answerbox.click()
                 word = searchandretreive(syllable)
-                checksyllable = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div[2]/div").text
+                checksyllable = driver.find_element(By.CLASS_NAME, "syllable").text
                 if checksyllable.lower() in word:
                     for char in word:
-                        driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[2]/form/input").send_keys(char)
-                        time.sleep(random.randint(1, 10)/1000)
-                    driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[2]/form/input").send_keys(Keys.ENTER)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(
+                            char)
+                        time.sleep(random.randint(1, 10) / 1000)
+                    driver.find_element(By.XPATH, answerXPATH).send_keys(
+                        Keys.ENTER)
                 else:
                     word = searchandretreive(checksyllable)
                     for char in word:
-                        driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[2]/form/input").send_keys(char)
-                        time.sleep(random.randint(1, 10)/1000)
-                    driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[2]/form/input").send_keys(Keys.ENTER)
-        except:
-            print(" ")
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(
+                            char)
+                        time.sleep(random.randint(1, 10) / 1000)
+                    driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+        except Exception as e:
+            print(e)
 
 
 
