@@ -90,7 +90,7 @@ def main():
     hometitle()
     print(f"""      {y}[{b}-{y}]{w} Main Options:           
     \n          {y}[{w}01{y}]{w} Auto Play               
-    \n          {y}[{w}02{y}]{w} SOON™️             
+    \n          {y}[{w}02{y}]{w} Word Helper             
     \n          {y}[{w}03{y}]{w} SOON™️             
     \n          {y}[{w}04{y}]{w} SOON™️                                      
     \n          {y}[{w}05{y}]{w} SOON™️                                 
@@ -107,7 +107,10 @@ def main():
         main()
     elif choice == '2':
         transition()
-        input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} This tool is under development, so it is not yet usable.")
+        hometitle()
+        credits()
+        helper()
+        input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} I massacred this tool while trying to fix something, (it dont work).")
         main()
     elif choice == '3':
         transition()
@@ -121,11 +124,52 @@ def main():
         transition()
         input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} This tool is under development, so it is not yet usable.")
 
-
-def scan():
+def helper():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get("https://jklm.fun/")
-    input("Hit enter once you are in a game! ")
+    input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} Hit enter once you are in a game! ")
+    while True:
+        try:
+            driver.switch_to.frame(
+                driver.find_element(By.XPATH,
+                                    "//div[@class='game']/iframe[contains(@src,'jklm.fun')]"))
+            break
+        except:
+            print("error while switching to frame")
+            pass
+
+    words_printed = False
+    while True:
+        try:
+            playerturn = driver.find_element(By.CLASS_NAME, "selfTurn")
+            opponentturn = playerturn.get_attribute("hidden")
+            roundStartXPATH = "/html/body/div[2]/div[1]/div/header"
+            roundText = driver.find_element(By.XPATH, roundStartXPATH).text
+            if opponentturn:
+                words_printed = False
+            if not opponentturn and not roundText:
+                if not words_printed:
+                    print(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} It is your turn! Searching for words...")
+                    syllable = driver.find_element(By.CLASS_NAME, "syllable").text
+                    word = searchandretreive(syllable, 3)
+                    print(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} Your words are: ", word)
+                    words_printed = True
+
+        except Exception as e:
+            print(e)
+
+
+def scan():
+    print(f"""      {y}[{b}-{y}]{w} What typing mode would you like (none will ban):           
+        \n          {y}[{w}01{y}]{w} Blatant (instant, good playing against bots)               
+        \n          {y}[{w}02{y}]{w} Fast Type (types fast but is quite blatant)      
+        \n          {y}[{w}03{y}]{w} Legit Type (types ~60 wpm with breaks, undetectable)                                        
+        \n                                                                     
+        \t\t\t\t\t\t\t\t\t\t\t\t\t""")
+    typingChoice = input(f"""{y}[{b}#{y}]{w} Choice: """).lstrip("0")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get("https://jklm.fun/")
+    input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} Hit enter once you see the 'JOIN GAME' button! ")
     while True:
         try:
             driver.switch_to.frame(
@@ -152,29 +196,62 @@ def scan():
             opponentturn = playerturn.get_attribute("hidden")
             answerXPATH = "/html/body/div[2]/div[3]/div[2]/div[2]/form/input"
             if not opponentturn:
-                print("player is up")
-                print("finding")
                 syllable = driver.find_element(By.CLASS_NAME, "syllable").text
                 answerbox = driver.find_element(By.XPATH, answerXPATH)
                 answerbox.click()
-                word = searchandretreive(syllable)
+                word = searchandretreive(syllable, 1)
                 checksyllable = driver.find_element(By.CLASS_NAME, "syllable").text
                 if checksyllable.lower() in word:
-                    for char in word:
-                        driver.find_element(By.XPATH, answerXPATH).send_keys(
-                            char)
-                        time.sleep(random.randint(1, 10) / 1000)
-                    driver.find_element(By.XPATH, answerXPATH).send_keys(
-                        Keys.ENTER)
+                    if typingChoice == "1":
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(word)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    if typingChoice == "2":
+                        for char in word:
+                            driver.find_element(By.XPATH, answerXPATH).send_keys(char)
+                            time.sleep(random.randint(1, 10)/1000)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    if typingChoice == "3":
+                        lenWord = len(word)
+                        middleOfWord = round(lenWord / 2)
+                        time.sleep(random.uniform(1, 2.5))
+                        for i in range(lenWord):
+                            if i == middleOfWord:
+                                time.sleep(1)
+                                driver.find_element(By.XPATH, answerXPATH).send_keys(word[i])
+                            else:
+                                driver.find_element(By.XPATH, answerXPATH).send_keys(word[i])
+                                time.sleep(random.randint(80, 100) / 1000)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    else:
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(word)
                 else:
-                    word = searchandretreive(checksyllable)
-                    for char in word:
-                        driver.find_element(By.XPATH, answerXPATH).send_keys(
-                            char)
-                        time.sleep(random.randint(1, 10) / 1000)
-                    driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
-        except Exception as e:
-            print(e)
+                    if typingChoice == "1":
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(word)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    if typingChoice == "2":
+                        for char in word:
+                            driver.find_element(By.XPATH, answerXPATH).send_keys(char)
+                            time.sleep(random.randint(1, 10)/1000)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    if typingChoice == "3":
+                        lenWord = len(word)
+                        middleOfWord = round(lenWord / 2)
+                        time.sleep(random.uniform(1, 2.5))
+                        for i in range(lenWord):
+                            if i == middleOfWord:
+                                time.sleep(1)
+                                driver.find_element(By.XPATH, answerXPATH).send_keys(word[i])
+                            else:
+                                driver.find_element(By.XPATH, answerXPATH).send_keys(word[i])
+                                time.sleep(random.randint(80, 100) / 1000)
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(Keys.ENTER)
+                    else:
+                        driver.find_element(By.XPATH, answerXPATH).send_keys(word)
+            else:
+                pass
+        except:
+            pass
+
 
 
 
@@ -183,11 +260,19 @@ def find_words(word_index, letters):
     return word_index[idx]
 
 
-def searchandretreive(addon):
+def searchandretreive(addon, numOfWords):
+    possible_words = []
     loweredaddon = addon.lower()
     found_words = [word for word in word_dict if re.search(loweredaddon, word)]
-    word = random.choice(found_words)
-    return word
+    if numOfWords == 1:
+        word = random.choice(found_words)
+        return word
+    else:
+        for i in range(numOfWords):
+            word = random.choice(found_words)
+            possible_words.append(word)
+
+    return possible_words
 
 if __name__ == "__main__":
     main()
