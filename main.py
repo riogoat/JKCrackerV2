@@ -169,7 +169,7 @@ def scan():
     typingChoice = input(f"""{y}[{b}#{y}]{w} Choice: """).lstrip("0")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get("https://jklm.fun/")
-    input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} Hit enter once you see the 'JOIN GAME' button! ")
+    input(f"{y}[{Fore.LIGHTRED_EX}!{y}]{w} Hit enter once you see the 'JOIN GAME' button!")
     while True:
         try:
             driver.switch_to.frame(
